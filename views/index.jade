@@ -1,0 +1,62 @@
+extends layout
+
+block content
+  -function prettyDate(dateString){
+      -var date = new Date(dateString);
+      -var d = date.getDate();
+      -var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+      -var m = monthNames[date.getMonth()];
+      -var y = date.getFullYear();
+      -return d+' '+m+' '+y;
+  -}
+
+  script.
+    function deleteHit(id){
+      console.log(id);
+      $.ajax({
+        method: "DELETE",
+        url: "/delete/"+id,
+        success: function(result) {
+          if(result != "error") {
+              location.reload();//Recargamos para obtener la nueva lista.
+          }
+        }
+      })
+    }
+
+  div(class="jumbotron")
+    div(class="container")
+      h1 HN Feed
+      p We love hacker news!
+  div(class="container")
+    table(class="table table-hover")
+      tbody
+        each hit, i in hits
+          - var url = ""
+          - var title = ""
+          if hit.story_url == null
+            - url = hit.url
+          else
+            - url = hit.story_url
+
+          if hit.story_title == null
+            - title = hit.title
+          else
+            - title = hit.story_title
+          tr(style="bg-color: #fff; border:1px #ccc;")
+            td
+              div(class="row")
+                div(class="col-md-1")
+                  span(class="glyphicon glyphicon-trash", aria-hidden="true", onclick="deleteHit(#{hit.objectID})")
+                div(class="col-md-8")
+                  if url == null
+                    h4 #{title} 
+                        small  - #{hit.author}
+                  else 
+                    a(href="#{url}", target="_blank")
+                      h4 #{title} 
+                        small  - #{hit.author}
+                div(class="col-md-3")
+                  #{prettyDate(hit.created_at)}
+              
+              
